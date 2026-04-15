@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary Quiz</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      color: #1a1a2e;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #2c2c6c;
+    }
+
+    nav {
+      width: 100%;
+      max-width: 620px;
+      margin-bottom: 1.5rem;
+    }
+
+    nav a {
+      font-size: 14px;
+      color: #534AB7;
+      text-decoration: none;
+    }
+
+    nav a:hover { text-decoration: underline; }
+
+    .quiz-wrap {
+      width: 100%;
+      max-width: 620px;
+    }
+
+    .progress-bar-bg {
+      height: 6px;
+      background: #ddd;
+      border-radius: 99px;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-bar-fill {
+      height: 6px;
+      background: #534AB7;
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    .word-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .big-word {
+      font-size: 32px;
+      font-weight: 600;
+      color: #2c2c6c;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .phonetic {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .choice-btn {
+      background: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 15px;
+      color: #1a1a2e;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      line-height: 1.4;
+    }
+
+    .choice-btn:hover:not(:disabled) {
+      background: #f5f5ff;
+      border-color: #534AB7;
+    }
+
+    .choice-btn.correct {
+      background: #EAF3DE;
+      border-color: #639922;
+      color: #27500A;
+    }
+
+    .choice-btn.wrong {
+      background: #FCEBEB;
+      border-color: #A32D2D;
+      color: #501313;
+    }
+
+    .choice-btn:disabled { cursor: default; }
+
+    .feedback {
+      font-size: 14px;
+      min-height: 22px;
+      margin-bottom: 1rem;
+      color: #888;
+      text-align: center;
+    }
+
+    .feedback.good { color: #3B6D11; }
+    .feedback.bad  { color: #A32D2D; }
+
+    .next-btn {
+      width: 100%;
+      padding: 13px;
+      background: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      color: #1a1a2e;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .next-btn:hover:not(:disabled) { background: #f5f5ff; }
+    .next-btn:disabled { opacity: 0.4; cursor: default; }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 1rem;
+    }
+
+    .results-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+
+    .score-big {
+      font-size: 52px;
+      font-weight: 600;
+      color: #534AB7;
+      margin: 0.5rem 0;
+    }
+
+    .score-label {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 1.5rem;
+    }
+
+    .restart-btn {
+      padding: 12px 32px;
+      background: #534AB7;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      color: #EEEDFE;
+      cursor: pointer;
+      margin-top: 1.5rem;
+    }
+
+    .restart-btn:hover { background: #3C3489; }
+
+    .review-item {
+      text-align: left;
+      border-top: 1px solid #eee;
+      padding: 12px 0;
+    }
+
+    .review-word { font-weight: 600; font-size: 15px; color: #1a1a2e; }
+    .review-status { font-size: 13px; margin-top: 2px; }
+    .review-status.ok { color: #3B6D11; }
+    .review-status.no { color: #A32D2D; }
+    .review-correct { font-size: 13px; color: #888; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+  <nav><a href="resume.html">← Back to resume</a></nav>
+  <h1>Vocabulary Quiz</h1>
+
+  <div class="quiz-wrap">
+    <div id="app"></div>
+  </div>
+
+  <script>
+    const ALL_WORDS = [
+      { word: "Sycophant", phonetic: "/ˈsɪk.ə.fænt/", correct: "A person who flatters powerful people to gain favor", wrong: ["A rare tropical plant", "An ancient musical instrument", "A type of geometric proof"] },
+      { word: "Ephemeral", phonetic: "/ɪˈfem.ər.əl/", correct: "Lasting for only a very short time", wrong: ["Relating to the afterlife", "Extremely heavy or dense", "Producing a pleasant echo"] },
+      { word: "Perfidious", phonetic: "/pəˈfɪd.i.əs/", correct: "Guilty of betrayal or treachery", wrong: ["Excessively precise and fussy", "Having an intoxicating fragrance", "Prone to loud outbursts"] },
+      { word: "Mellifluous", phonetic: "/məˈlɪf.lu.əs/", correct: "Sweet or musical; pleasant to hear", wrong: ["Bitterly sarcastic in tone", "Excessively generous with gifts", "Resembling or related to honey"] },
+      { word: "Obstreperous", phonetic: "/əbˈstrep.ər.əs/", correct: "Noisy and difficult to control", wrong: ["Stubbornly refusing to eat", "Relating to ancient ruins", "Extremely cautious or timid"] },
+      { word: "Loquacious", phonetic: "/ləʊˈkweɪ.ʃəs/", correct: "Tending to talk a great deal", wrong: ["Moving in a slow, sluggish manner", "Skilled at solving puzzles", "Having a sharp, bitter taste"] },
+      { word: "Sesquipedalian", phonetic: "/ˌses.kwɪ.pɪˈdeɪ.li.ən/", correct: "Given to using long, obscure words", wrong: ["Relating to the number one and a half", "Having six sides or angles", "Occurring every seven years"] },
+      { word: "Pusillanimous", phonetic: "/ˌpjuː.sɪˈlæn.ɪ.məs/", correct: "Showing a lack of courage; timid", wrong: ["Overly generous to a fault", "Resembling a small feline", "Relating to ancient Roman law"] },
+      { word: "Truculent", phonetic: "/ˈtrʌk.jʊ.lənt/", correct: "Eager to argue or fight; aggressively defiant", wrong: ["Moving slowly and steadily", "Tending to forgive easily", "Producing an unusual smell"] },
+      { word: "Grandiloquent", phonetic: "/ɡrænˈdɪl.ə.kwənt/", correct: "Using pompous or extravagant language", wrong: ["Extremely generous and kind", "Prone to sudden mood changes", "Having a grand physical size"] },
+      { word: "Recalcitrant", phonetic: "/rɪˈkæl.sɪ.trənt/", correct: "Stubbornly refusing to obey authority", wrong: ["Returning to a former state", "Calculating with great precision", "Relating to calcium deposits"] },
+      { word: "Perspicacious", phonetic: "/ˌpɜː.spɪˈkeɪ.ʃəs/", correct: "Having a ready insight into things; shrewd", wrong: ["Tending to sweat heavily", "Having unusually sharp eyesight", "Relating to transparent glass"] },
+      { word: "Malfeasance", phonetic: "/mælˈfiː.zəns/", correct: "Wrongdoing, especially by a public official", wrong: ["A disease affecting farm animals", "The act of abandoning property", "An ancient form of taxation"] },
+      { word: "Ennui", phonetic: "/ˈɒn.wiː/", correct: "A feeling of listlessness from lack of excitement", wrong: ["An elaborate French dessert", "Mutual agreement between parties", "An ornate type of embroidery"] },
+      { word: "Vituperative", phonetic: "/vɪˈtjuː.pər.ə.tɪv/", correct: "Bitter and abusive in speech or writing", wrong: ["Relating to glass production", "Promoting health and vitality", "Showing excessive admiration"] },
+    ];
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function pickQuiz() {
+      return shuffle(ALL_WORDS).slice(0, 5).map(q => ({
+        ...q,
+        choices: shuffle([q.correct, ...q.wrong])
+      }));
+    }
+
+    let quiz = pickQuiz();
+    let current = 0, score = 0, answered = false, results = [];
+
+    function render() {
+      current >= quiz.length ? renderResults() : renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = quiz[current];
+      const pct = (current / quiz.length) * 100;
+      document.getElementById('app').innerHTML = `
+        <div class="meta">
+          <span>Question ${current + 1} of ${quiz.length}</span>
+          <span>Score: ${score}</span>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+        <div class="word-card">
+          <div class="big-word">${q.word}</div>
+          <div class="phonetic">${q.phonetic}</div>
+        </div>
+        <div class="choices">
+          ${q.choices.map((c, i) => `<button class="choice-btn" onclick="choose(${i})">${c}</button>`).join('')}
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="nextBtn" disabled onclick="next()">
+          ${current === quiz.length - 1 ? 'See results' : 'Next word →'}
+        </button>
+      `;
+    }
+
+    function choose(idx) {
+      if (answered) return;
+      answered = true;
+      const q = quiz[current];
+      const btns = document.querySelectorAll('.choice-btn');
+      const chosen = q.choices[idx];
+      const correct = chosen === q.correct;
+      if (correct) score++;
+      results.push({ word: q.word, correct: q.correct, chosen, ok: correct });
+      btns.forEach((btn, i) => {
+        btn.disabled = true;
+        if (q.choices[i] === q.correct) btn.classList.add('correct');
+        else if (i === idx && !correct) btn.classList.add('wrong');
+      });
+      const fb = document.getElementById('feedback');
+      fb.textContent = correct ? '✓ Correct!' : `✗ The answer was: "${q.correct}"`;
+      fb.className = 'feedback ' + (correct ? 'good' : 'bad');
+      document.getElementById('nextBtn').disabled = false;
+    }
+
+    function next() {
+      current++;
+      answered = false;
+      render();
+    }
+
+    function renderResults() {
+      const pct = Math.round((score / quiz.length) * 100);
+      const msg = pct === 100 ? 'Perfect score!' : pct >= 60 ? 'Nice work!' : 'Keep studying!';
+      const reviewHTML = results.map(r => `
+        <div class="review-item">
+          <div class="review-word">${r.word}</div>
+          <div class="review-status ${r.ok ? 'ok' : 'no'}">${r.ok ? '✓ Correct' : `✗ You chose: "${r.chosen}"`}</div>
+          ${!r.ok ? `<div class="review-correct">Correct: "${r.correct}"</div>` : ''}
+        </div>
+      `).join('');
+      document.getElementById('app').innerHTML = `
+        <div class="results-card">
+          <p style="font-size:14px;color:#888;">${msg}</p>
+          <div class="score-big">${score}/${quiz.length}</div>
+          <div class="score-label">${pct}% correct</div>
+          ${reviewHTML}
+          <button class="restart-btn" onclick="restart()">Play again</button>
+        </div>
+      `;
+    }
+
+    function restart() {
+      quiz = pickQuiz();
+      current = 0; score = 0; answered = false; results = [];
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>

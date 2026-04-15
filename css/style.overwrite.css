@@ -1,0 +1,66 @@
+/* Overwrite stylesheet  */
+.bold {
+  font-weight: 700;
+}
+
+/* Resume layout tweaks (more specific to override defaults) */
+.common.mainbody,
+.mainbody,
+body .common.mainbody {
+  padding: 1.5rem !important;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Bold the top-level resume list titles but keep nested list items normal */
+.common.mainbody ol > li.resumeList,
+body .common.mainbody ol > li.resumeList {
+  font-weight: 700 !important;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+.common.mainbody ol > li.resumeList ul li,
+body .common.mainbody ol > li.resumeList ul li {
+  font-weight: 400 !important;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Ensure Mission Statement span uses the bold class (stronger selector) */
+.common.mainbody p.justify > .bold,
+body .common.mainbody p.justify > .bold {
+  font-weight: 700 !important;
+}
+
+/* Slight spacing for list content */
+.common.mainbody ol {
+  padding-left: 1rem;
+}
+
+/* Padding for right-side menu and header subheader spacing */
+.common.rightmenu {
+  padding: 1rem !important;
+}
+
+.common.header .subheader {
+  display: block;
+  padding: 0.5rem 1rem;
+}
+
+/* Page background and content card for resume */
+body {
+  background-color: #f7f9fb;
+  min-height: 100vh;
+}
+
+.common.mainbody,
+body .common.mainbody {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  max-width: 900px;
+  margin: 1.5rem auto;
+}
+
+h4 {
+  color: #5c6603;
+}
